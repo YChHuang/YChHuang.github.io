@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>節點與鏡頭</title>
+<meta name="description" content="UE 工具開發與 ComfyUI / Minimax H3 影像生成作品集，含技術案例、架構圖與美感佐證。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eff2f0;
+    --surface: #ffffff;
+    --surface-2: #e3e9e6;
+    --ink: #1a201e;
+    --ink-soft: #56635e;
+    --ink-faint: #8a948f;
+    --accent: #0d7a71;
+    --accent-ink: #ffffff;
+    --accent-soft: #d8ece9;
+    --line: #d1d8d5;
+    --line-strong: #b4bfba;
+    --todo: #a8560f;
+    --todo-soft: #fbe9d7;
+    --todo-line: #dba470;
+    --shadow: 0 1px 2px rgba(20, 30, 27, 0.06), 0 4px 16px rgba(20, 30, 27, 0.05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181a;
+      --surface: #1b2123;
+      --surface-2: #222a2c;
+      --ink: #e8ece9;
+      --ink-soft: #9aa6a1;
+      --ink-faint: #6c7975;
+      --accent: #3fd6c4;
+      --accent-ink: #0d1615;
+      --accent-soft: #17332f;
+      --line: #2a3234;
+      --line-strong: #3a4446;
+      --todo: #f2a65a;
+      --todo-soft: #2c2013;
+      --todo-line: #7a5326;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #14181a;
+    --surface: #1b2123;
+    --surface-2: #222a2c;
+    --ink: #e8ece9;
+    --ink-soft: #9aa6a1;
+    --ink-faint: #6c7975;
+    --accent: #3fd6c4;
+    --accent-ink: #0d1615;
+    --accent-soft: #17332f;
+    --line: #2a3234;
+    --line-strong: #3a4446;
+    --todo: #f2a65a;
+    --todo-soft: #2c2013;
+    --todo-line: #7a5326;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { color-scheme: light dark; }
+
+  body {
+    margin: 0;
+    background-color: var(--bg);
+    background-image: radial-gradient(var(--line) 1px, transparent 1px);
+    background-size: 26px 26px;
+    color: var(--ink);
+    font-family: "Source Sans 3", -apple-system, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--accent-soft); color: var(--ink); }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 120px;
+  }
+
+  h1, h2, h3 {
+    font-family: "Fraunces", Georgia, serif;
+    text-wrap: balance;
+    margin: 0;
+    color: var(--ink);
+  }
+
+  .mono {
+    font-family: "JetBrains Mono", ui-monospace, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  code {
+    font-family: "JetBrains Mono", ui-monospace, Consolas, monospace;
+    font-size: 0.9em;
+    background: var(--surface-2);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  /* ---------- Header ---------- */
+  header.masthead {
+    padding: 72px 0 56px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 64px;
+  }
+  .prompt-line {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+    margin: 0 0 18px;
+  }
+  .prompt-line::before { content: "$ "; color: var(--accent); }
+  h1.name {
+    font-size: clamp(2.4rem, 5vw, 3.4rem);
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  p.tagline {
+    font-size: 1.15rem;
+    color: var(--ink-soft);
+    margin: 16px 0 0;
+  }
+  .contact-line {
+    margin-top: 24px;
+    font-size: 0.95rem;
+    color: var(--ink-faint);
+  }
+
+  /* ---------- Generic section ---------- */
+  section { margin-bottom: 80px; }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .section-head .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+  }
+  .section-head h2 { font-size: 1.6rem; font-weight: 600; }
+  .section-intro {
+    color: var(--ink-soft);
+    margin: 12px 0 40px;
+  }
+
+  /* ---------- Golden three (chaptered cases) ---------- */
+  .case {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 4px 28px;
+    padding: 40px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .case:last-child { border-bottom: none; }
+  .case-num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.74rem;
+    font-weight: 500;
+    color: var(--ink-faint);
+    line-height: 1.45;
+    padding-top: 6px;
+  }
+  .case-body h3 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .case-body .case-role {
+    font-size: 0.9rem;
+    color: var(--ink-faint);
+    margin-bottom: 16px;
+  }
+  .case-body p { margin: 0 0 14px; }
+  .case-body p:last-of-type { margin-bottom: 0; }
+
+  .stat-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 18px 0;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 14px;
+    box-shadow: var(--shadow);
+  }
+  .stat .stat-label {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 3px;
+  }
+  .stat .stat-value {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .video-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 18px 0;
+    padding: 16px 18px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+  .video-list .video-hint {
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+    margin: 0 0 4px;
+  }
+  .video-row { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; }
+  .video-row .video-name { font-family: "JetBrains Mono", monospace; font-size: 0.85rem; color: var(--ink-soft); }
+
+  /* TODO styling shared by placeholders */
+  .is-todo {
+    color: var(--todo) !important;
+    border-color: var(--todo-line) !important;
+    background: var(--todo-soft) !important;
+  }
+  .todo-badge {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.7rem;
+    color: var(--todo);
+    background: var(--todo-soft);
+    border: 1px dashed var(--todo-line);
+    border-radius: 5px;
+    padding: 1px 6px;
+    white-space: nowrap;
+  }
+
+  .mini-head {
+    display: block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 22px 0 8px;
+  }
+
+  ul.criteria { margin: 0 0 12px; padding-left: 1.2em; }
+  ul.criteria li { margin-bottom: 8px; }
+  ul.criteria strong { color: var(--ink); }
+
+  /* ---------- Compact rows (secondary-weight items) ---------- */
+  .compact-list { border-top: 1px solid var(--line); }
+  .compact-row { padding: 18px 0; border-bottom: 1px solid var(--line); }
+  .compact-row:last-child { border-bottom: none; }
+  .compact-row .compact-head {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .compact-row h4 {
+    font-family: "Source Sans 3", sans-serif;
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0;
+  }
+  .compact-row .compact-meta {
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+  }
+  .compact-row p {
+    margin: 4px 0 0;
+    color: var(--ink-soft);
+    font-size: 0.96rem;
+  }
+  .compact-row figure.photo { max-width: 360px; margin-top: 14px; }
+  .compact-row ul.criteria { margin-top: 10px; }
+
+  /* ---------- Photo evidence (single shot) ---------- */
+  figure.photo { margin: 20px 0 0; }
+  figure.photo img { width: 100%; max-width: 480px; border-radius: 12px; display: block; }
+  figure.photo figcaption { margin-top: 10px; font-size: 0.85rem; color: var(--ink-faint); }
+
+  /* ---------- Screenshot strips (Minimax evidence) ---------- */
+  .shot-strip { margin: 22px 0; }
+  .shot-strip .shot-strip-label { font-size: 0.88rem; color: var(--ink-soft); margin: 0 0 10px; }
+  .shot-strip .shot-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .shot-strip .shot-row img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; display: block; }
+  @media (max-width: 620px) {
+    .shot-strip .shot-row { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- Diagrams ---------- */
+  figure.diagram {
+    margin: 28px 0;
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+  }
+  figure.diagram svg { display: block; width: 100%; height: auto; max-width: 640px; margin: 0 auto; }
+  figure.diagram figcaption {
+    margin-top: 14px;
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+    text-align: center;
+  }
+  .diagram text { fill: currentColor; font-family: "Source Sans 3", sans-serif; }
+  .diagram .mono-label { font-family: "JetBrains Mono", monospace; }
+
+  /* ---------- Visual gallery ---------- */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .gallery .tile { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .gallery .tile img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 10px; display: block; }
+  .gallery .tile figcaption { font-size: 0.78rem; color: var(--ink-faint); text-align: center; }
+
+  @media (max-width: 620px) {
+    .gallery { grid-template-columns: repeat(2, 1fr); }
+    .case { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- CV list ---------- */
+  .cv-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .cv-list li {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 10px;
+    font-size: 0.95rem;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .cv-list li:last-child { border-bottom: none; }
+  .cv-list .bullet { color: var(--accent); font-family: "JetBrains Mono", monospace; }
+  .cv-list a { color: var(--ink); text-decoration-color: var(--line-strong); }
+
+  footer {
+    margin-top: 100px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .stat, figure.diagram { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+  }
+
+  /* ---------- Print ---------- */
+  @media print {
+    @page {
+      size: A4;
+      margin: 16mm 14mm;
+    }
+
+    :root {
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --surface-2: #f0f2f1;
+      --ink: #1a201e;
+      --ink-soft: #4a544f;
+      --ink-faint: #6f7a75;
+      --accent: #0d7a71;
+      --accent-ink: #ffffff;
+      --accent-soft: #d8ece9;
+      --line: #d1d8d5;
+      --line-strong: #b4bfba;
+      --todo: #a8560f;
+      --todo-soft: #fbe9d7;
+      --todo-line: #dba470;
+      --shadow: none;
+    }
+
+    body {
+      background: #fff none;
+      font-size: 12.5pt;
+      line-height: 1.5;
+    }
+
+    .wrap { max-width: 100%; padding: 0; }
+
+    a { color: var(--ink); text-decoration: underline; }
+
+    header.masthead { padding: 0 0 20px; margin-bottom: 28px; }
+
+    section { margin-bottom: 32px; }
+
+    /* Never split a paragraph, list item, image, or stat block mid-block */
+    p, li, figure, .stat, .stat-row, .video-list,
+    .shot-strip, .shot-row, .gallery .tile, .diagram,
+    .compact-row, .case-num, ul.criteria {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    p { orphans: 3; widows: 3; }
+
+    /* Keep a heading attached to the content that follows it */
+    h1, h2, h3, h4, .section-head, .case-body h3, .case-body .case-role, .mini-head {
+      break-after: avoid;
+      page-break-after: avoid;
+    }
+
+    /* Keep each case's heading + role + opening paragraph together,
+       but allow the rest of the (long) case to flow across pages */
+    .case-body > h3,
+    .case-body > .case-role,
+    .case-body > p:first-of-type {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    /* Chrome's print pagination can leave a blank page behind a CSS Grid
+       item that gets pushed to the next page — switch .case to block
+       layout for print so it paginates cleanly */
+    .case {
+      display: block;
+      break-before: auto;
+      padding: 0 0 28px;
+    }
+    .case:not(:first-child) { break-before: page; }
+    .case-num {
+      display: inline-block;
+      padding-top: 0;
+      margin-bottom: 8px;
+    }
+
+    .compact-list { break-before: avoid; }
+
+    figure.diagram, figure.photo, .shot-strip, .gallery { box-shadow: none; }
+
+    figure.photo img, .gallery .tile img { max-width: 100%; }
+
+    footer { break-inside: avoid; page-break-inside: avoid; margin-top: 40px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="prompt-line">whoami</p>
+    <h1 class="name is-todo" id="profile-name">TODO：你的名字</h1>
+    <p class="tagline is-todo" id="profile-tagline">UE 工具開發，現正專注將 AI 工作流（ComfyUI／本地部署／自動化串接）導入既有 pipeline</p>
+    <p class="contact-line">現職・<a href="https://icvfx.reno-studios.com/" target="_blank" rel="noopener">再現影像 RENO STUDIOS</a>　UE Engineer (Virtual Production)　2026/02–</p>
+    <p class="contact-line is-todo" id="profile-contact">TODO：email 或聯絡方式</p>
+  </header>
+
+  <main>
+
+    <!-- ============ 精選案例 ============ -->
+    <section id="cases">
+      <div class="section-head">
+        <h2>精選案例</h2>
+      </div>
+      <p class="section-intro">從已經上實際案子的生成流程,到自己重寫的引擎底層工具,再到單日跑完的自動化場景產線。</p>
+
+      <article class="case">
+        <div class="case-num">生產環境</div>
+        <div class="case-body">
+          <h3>Minimax H3 影像生成</h3>
+          <p class="case-role">ComfyUI workflow・角色一致性調校・成本優化</p>
+          <p>目前在用 ComfyUI 跑 Minimax H3 做 VFX，已經有幾顆鏡頭進到實際案子。被交辦的工作大多是換臉／換動作，最大的卡點是角色一致性——當待替換角色跟參考圖特徵太接近時，模型分不清楚「這是誰」。</p>
+          <p>解法是把「輸出」反過來當「輸入」用：故意把角色造型誇張化生成一版，拿這版特徵被拉開的結果當新參考圖重新餵回去；或是從堪用影片截圖，丟圖像 AI 做細部修正，再把處理過的圖當首幀餵回影片生成流程。</p>
+          
+          <div class="shot-strip">
+            <p class="shot-strip-label">純t2v，三方陣營辨識，明軍／清軍／百姓，若prompt下的太模糊，會導致所有人都綁上辮子，在prompt前面加入角色定位區隔，同畫面三種身份不會混淆，在minimax h3有不錯的效果</p>
+            <div class="shot-row">
+              <img src="代表性的圖/影片截圖/02/01.png" alt="明軍清軍百姓辨識示範截圖 1">
+              <img src="代表性的圖/影片截圖/02/02.png" alt="明軍清軍百姓辨識示範截圖 2">
+              <img src="代表性的圖/影片截圖/02/03.png" alt="明軍清軍百姓辨識示範截圖 3">
+            </div>
+          </div>
+
+          <div class="shot-strip">
+            <p class="shot-strip-label">指定角色，姑姑嘎嘎、菲比、CJ，利用ref2v</p>
+            <div class="shot-row">
+              <img src="代表性的圖/影片截圖/01/01.png" alt="角色替換示範截圖 1">
+              <img src="代表性的圖/影片截圖/01/02.png" alt="角色替換示範截圖 2">
+              <img src="代表性的圖/影片截圖/01/03.png" alt="角色替換示範截圖 3">
+            </div>
+          </div>
+
+
+          <p class="mini-head">租 GPU</p>
+          <p>目前工作時使用公司的GPU生成，但自己在家沒那麼好的GPU，生成影片的SaaS收費又挺驚人，選擇租GPU</p>
+          <p>用 RunPod 租 5090，得透過cli工具抓想要的模型，不太直覺，且要計算好容器需要的容量，但比 SaaS 便宜很多，等於用自己的時間換成本。</p>
+
+          <div class="stat-row">
+            <div class="stat">
+              <span class="stat-label">SaaS 單次成本</span>
+              <span class="stat-value">NT$20–30 / 次</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">自租 5090</span>
+              <span class="stat-value">US$0.6~1 / hr</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">單顆鏡頭生成</span>
+              <span class="stat-value">約 10–20 min</span>
+            </div>
+          </div>
+
+          <div class="video-list">
+            <p class="video-hint">影片存於雲端硬碟資料夾，ComfyUI 生成的assets通常本身就是 workflow，可以拖進去</p>
+            <a id="video-folder" href="#">開啟雲端硬碟資料夾</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="case">
+        <div class="case-num">引擎工具</div>
+        <div class="case-body">
+          <h3>UE 資產 Migrate 架構</h3>
+          <p class="case-role">C++／Slate・RAII・拓樸排序 + BFS</p>
+        <p>UE 內建的資產遷移功能（Content Browser 的 Migrate，底層是 AssetTools 模組的 MigratePackages，依賴查詢則呼叫 Asset Registry 的 GetDependencies）會漏掉依賴——查詢查得到，實際搬移時卻搬不動，問題出在遷移邏輯本身。重寫時用一個 RAII 物件包住整次 migrate 操作的生命週期：按下 Migrate 建立物件，操作結束物件離開作用域就自動釋放暫存狀態。</p>
+        <p>物件內部先用 BFS 走訪資產依賴圖，一次建構三張表——拓樸排序後的順序表、名稱對應實際位置的表、名稱對應是否可安全複製的表。真正搬移時只需要照順序表迭代，逐一確認可複製性、查出位置、執行複製。</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 680 460" role="img" aria-label="UE 資產 Migrate 架構圖：按下 Migrate 建立 RAII 物件，物件生命週期內用 BFS 走訪依賴圖建立拓樸順序表、位置表、可複製性表，接著依序迭代驗證並執行複製，作用域結束時自動釋放暫存狀態">
+            <defs>
+              <marker id="arrowNeutral2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+              </marker>
+              <marker id="arrowAccent2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+              </marker>
+            </defs>
+
+            <rect x="270" y="14" width="140" height="46" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="340" y="42" text-anchor="middle" font-size="13" font-weight="600">按下 Migrate</text>
+            <line x1="340" y1="60" x2="340" y2="86" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrowNeutral2)"/>
+
+            <rect x="30" y="90" width="620" height="290" rx="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="6 5"/>
+            <text x="48" y="112" font-size="12" class="mono-label" fill="currentColor" opacity="0.65">RAII 物件生命週期</text>
+
+            <rect x="255" y="128" width="170" height="46" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="340" y="156" text-anchor="middle" font-size="13" font-weight="600">BFS 走訪依賴圖</text>
+
+            <line x1="300" y1="174" x2="150" y2="206" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrowNeutral2)"/>
+            <line x1="340" y1="174" x2="340" y2="206" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrowNeutral2)"/>
+            <line x1="380" y1="174" x2="530" y2="206" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrowNeutral2)"/>
+
+            <rect x="60" y="210" width="180" height="50" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="150" y="231" text-anchor="middle" font-size="12" font-weight="600">表1｜拓樸順序</text>
+            <text x="150" y="248" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.65">物件搬移的先後次序</text>
+
+            <rect x="250" y="210" width="180" height="50" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="340" y="231" text-anchor="middle" font-size="12" font-weight="600">表2｜名稱→位置</text>
+            <text x="340" y="248" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.65">key-val 查表</text>
+
+            <rect x="440" y="210" width="180" height="50" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="530" y="231" text-anchor="middle" font-size="12" font-weight="600">表3｜可複製性</text>
+            <text x="530" y="248" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.65">key-val 查表</text>
+
+            <line x1="150" y1="260" x2="300" y2="292" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrowNeutral2)"/>
+            <line x1="340" y1="260" x2="340" y2="292" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrowNeutral2)"/>
+            <line x1="530" y1="260" x2="380" y2="292" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrowNeutral2)"/>
+
+            <rect x="240" y="296" width="200" height="46" rx="8" fill="none" stroke="var(--accent)" stroke-width="2"/>
+            <text x="340" y="324" text-anchor="middle" font-size="13" font-weight="600" fill="var(--accent)">依表1順序迭代驗證複製</text>
+
+            <line x1="340" y1="342" x2="340" y2="380" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrowNeutral2)"/>
+
+            <rect x="220" y="384" width="240" height="46" rx="8" fill="none" stroke="var(--accent)" stroke-width="2"/>
+            <text x="340" y="412" text-anchor="middle" font-size="13" font-weight="600" fill="var(--accent)">作用域結束・自動釋放</text>
+          </svg>
+          <figcaption>迭代驗證與釋放都發生在同一個 RAII 物件的生命週期內，不需要額外的清理邏輯。</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <article class="case">
+        <div class="case-num">自動化</div>
+        <div class="case-body">
+          <h3>Blender MCP 場景生成</h3>
+          <p class="case-role">Claude + Blender MCP 橋接・Meshy AI 資產生成・單日產出</p>
+        <p>用 Blender MCP 橋接讓 Claude 直接操作 Blender，搭配 Meshy AI（meshy-6）生成 3D 資產。單日內（21:43 到隔日 00:12）產出 25 項資產——建築、地面、牆面、街道家具、載具、雜物植被六大類——組裝成一個頹敗城市街角場景「decayed_city_corner」，並輸出測試渲染驗證完成度。</p>
+        <p>另外把公司內部原有的資產瀏覽器魔改，讓它能接收 agent 發出的 API 請求，並調用 client 把資產交給 agent 使用。UX 端則讓 client 端自動生成一段 prompt、注入對應的 API 說明，使用者只要把這段複製給 agent，agent 就能直接調用公司內部的資產庫。</p>
+        <figure class="photo">
+          <img src="blender_mcp_test/test1.png" alt="TryAuto3D 場景測試渲染">
+          <figcaption>test1.png｜25 項資產組裝後的測試渲染</figcaption>
+          </figure>
+        </div>
+      </article>
+    </section>
+
+    <!-- ============ 其他工程經驗 ============ -->
+    <section id="other-work">
+      <div class="section-head">
+        <h2>其他工程經驗</h2>
+      </div>
+      <p class="section-intro">日常維運與臨場排錯，以及小標案。</p>
+
+      <div class="compact-list">
+        <div class="compact-row">
+          <div class="compact-head">
+            <h4>Gitea 導入與 AI 文件迭代</h4>
+            <span class="compact-meta">DevOps・知識管理・主動推動</span>
+          </div>
+          <p>公司原本完全沒有版控文化，程式碼散落在 NAS 個人資料夾裡。主動推動導入 Gitea，並用 AI 快速補齊每個專案的 README，讓團隊的 bus factor 下降，不再有「這段程式碼只有一個人看得懂」的風險。</p>
+        </div>
+
+        <div class="compact-row">
+          <div class="compact-head">
+            <h4>資料庫正規化重構</h4>
+            <span class="compact-meta">前同事無留 repo・SSH 救回・多對多關聯設計</span>
+          </div>
+          <p>前同事離職未留下 repo，SSH 遠端拉回網站後用 Docker 重新包裝，請IT建好 CI/CD。同時把塞在單一欄位裡的陣列資料拆成正規化的多對多關聯表，讓後續新增或修改資料不再牽一髮動全身。</p>
+        </div>
+
+        <div class="compact-row">
+          <div class="compact-head">
+            <h4>freeD 訊號除錯</h4>
+            <span class="compact-meta">虛擬製作・新設備測試</span>
+          </div>
+          <p>追蹤案子需要 freeD 格式訊號，廠商設備只借一天且訊號無法同步到叢集各節點。設備不在現場時先做一個模擬訊號供 debug，最終用 UDP 轉發訊號給其他節點解決同步問題。</p>
+        </div>
+
+        <div class="compact-row">
+          <div class="compact-head">
+            <h4>Linux / CUDA 環境排錯</h4>
+            <span class="compact-meta">雙系統・驅動衝突・CUDA 版本對齊</span>
+          </div>
+          <p>為了在 Ubuntu 上完整榨取 GPU 效能而捨棄 WSL，處理過 N 卡驅動與 GRUB 開機衝突。conda 環境下，Trellis2、Gaussian Splatting 這類需要現場編譯 CUDA 擴充的專案常抓到系統全域的 nvcc，得手動指定 CUDA_HOME 與 PATH 讓版本對齊才能編譯成功。</p>
+        </div>
+
+        <div class="compact-row">
+          <div class="compact-head">
+            <h4>AI輔助全端開發</h4>
+            <span class="compact-meta">互動前台＋內容後台・agent協作</span>
+          </div>
+          <p>用 Claude Code 等 agent 輔助，開發過機場導覽互動網頁（前台可互動、搭配後台讓非工程人員能自行更新內容）與官網展示頁。agent 負責產出程式碼骨架，我負責讓commit時機合理、UX設計以及符合需求。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 個人專案或練習 ============ -->
+    <section id="personal">
+      <div class="section-head">
+        <h2>個人專案或練習</h2>
+      </div>
+      <p class="section-intro">自學圖學的作業、一個開源小工具，以及支撐生成美感判斷的素描與概念設計底子。</p>
+
+      <div class="compact-list">
+        <div class="compact-row">
+          <div class="compact-head">
+            <h4>GAMES101 計算機圖學作業</h4>
+            <span class="compact-meta">MVP 變換・光柵化 + Z-buffer・Blinn-Phong 著色</span>
+          </div>
+          <p>自學電腦圖學的過程，已完成三份作業，從透視矩陣推導到光柵化管線、再到 Blinn-Phong 著色模型。會補這塊是因為對理解底層很有興趣，並且未來想做技術美術。作業內容整理在 <a href="https://drive.google.com/drive/folders/1gZNaXBAdsquzlJxL2NmD4I7YhLDQNWjC" target="_blank" rel="noopener">Google 雲端硬碟資料夾</a>。</p>
+          <figure class="photo">
+            <img src="代表性的圖/Games101作業_證明我做了mvp矩陣_光柵化和寫光照.png" alt="GAMES101 Blinn-Phong 著色渲染成果（spot 模型）">
+            <figcaption>Assignment 3 成果：套用 MVP 變換、光柵化與 Blinn-Phong 著色</figcaption>
+          </figure>
+        </div>
+
+        <div class="compact-row">
+          <div class="compact-head">
+            <h4>PretenDF</h4>
+            <span class="compact-meta">開源專案・Python・PDF 幾何修復</span>
+          </div>
+          <p>修復 PDF「假 landscape」問題（/Rotate metadata 標錯、頁面與標註座標系統不同步）的 CLI 工具，開源在 <a href="https://github.com/YChHuang/PretenDF" target="_blank" rel="noopener">github.com/YChHuang/PretenDF</a>。</p>
+        </div>
+      </div>
+
+      <p class="mini-head">美術作品</p>
+      <div class="gallery">
+        <figure class="tile">
+          <img src="代表性的圖/人像素描_作為審美.jpg" alt="人像素描">
+          <figcaption>Drawing｜人像素描</figcaption>
+        </figure>
+        <figure class="tile">
+          <img src="代表性的圖/石膏像素描_基本功.jpg" alt="石膏像素描">
+          <figcaption>Drawing｜石膏像素描</figcaption>
+        </figure>
+        <figure class="tile">
+          <img src="代表性的圖/建築設計與氛圍的概念設計.jpg" alt="建築與氛圍概念設計">
+          <figcaption>Concept Art｜建築與氛圍</figcaption>
+        </figure>
+        <figure class="tile">
+          <img src="代表性的圖/機械設計的概念設計.jpg" alt="機械概念設計">
+          <figcaption>Concept Art｜機械設計</figcaption>
+        </figure>
+        <figure class="tile">
+          <img src="代表性的圖/興登堡_動漫女孩_主要是對應公司的產品也是動漫美少女.jpg" alt="動漫女孩插畫">
+          <figcaption>Anime｜角色插畫</figcaption>
+        </figure>
+        <figure class="tile">
+          <img src="代表性的圖/持槍女孩們與場景_凸顯我不只會角色還會背景.jpg" alt="動漫女孩與場景插畫">
+          <figcaption>Anime｜角色＋場景</figcaption>
+        </figure>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <span id="footer-contact" class="is-todo">a9981321@gmail.com</span>
+  </footer>
+
+</div>
+
+<script>
+  const PROFILE = {
+    name: "Yen Chieh Huang",
+    tagline: "UE 工具開發，現正專注將 AI 工作流（ComfyUI／本地部署／自動化串接）導入既有 pipeline",
+    contact: "a9981321@gmail.com"
+  };
+  const VIDEOS = {
+    folder: "https://drive.google.com/drive/folders/1zrE7eZU-03Y4bD9EflN_c4j5IFKbrPhJ"
+  };
+
+  function fillText(id, value) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const isTodo = value.startsWith("TODO");
+    el.textContent = value;
+    el.classList.toggle("is-todo", isTodo);
+  }
+
+  function fillHref(id, value, label) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const isTodo = value.startsWith("TODO");
+    el.href = isTodo ? "#" : value;
+    el.classList.toggle("is-todo", isTodo);
+    el.textContent = isTodo ? "連結待補" : label;
+    if (isTodo) {
+      const badge = document.createElement("span");
+      badge.className = "todo-badge";
+      badge.textContent = "TODO";
+      el.appendChild(badge);
+    }
+  }
+
+  fillText("profile-name", PROFILE.name);
+  fillText("profile-tagline", PROFILE.tagline);
+  fillText("profile-contact", PROFILE.contact);
+  fillText("footer-contact", PROFILE.contact);
+  fillHref("video-folder", VIDEOS.folder, "開啟雲端硬碟資料夾");
+</script>
+
+</body>
+</html>
