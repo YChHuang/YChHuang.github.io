@@ -346,6 +346,20 @@
     .case { grid-template-columns: 1fr; }
   }
 
+  /* ---------- Two-up gallery (uncropped, for generation results) ---------- */
+  .gallery-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .gallery-2 .tile { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .gallery-2 .tile img { width: 100%; border-radius: 10px; display: block; }
+  .gallery-2 .tile figcaption { font-size: 0.78rem; color: var(--ink-faint); text-align: center; }
+  @media (max-width: 480px) {
+    .gallery-2 { grid-template-columns: 1fr; }
+  }
+
   /* ---------- CV list ---------- */
   .cv-list {
     list-style: none;
@@ -541,6 +555,43 @@
           <div class="video-list">
             <p class="video-hint">影片存於雲端硬碟資料夾，ComfyUI 生成的assets通常本身就是 workflow，可以拖進去</p>
             <a id="video-folder" href="#">開啟雲端硬碟資料夾</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="case">
+        <div class="case-num">模型訓練</div>
+        <div class="case-body">
+          <h3>角色 LoRA 訓練（GF AN-94・z-image）</h3>
+          <p class="case-role">ComfyUI 資料生成 workflow・自動打標・批次資料清洗</p>
+          <p>Minimax H3 那邊角色一致性是用「輸出反過來當輸入」硬解，想更根本地驗證這條路能走到哪，找了張《少女前線》AN-94 的角色圖，練一個小型角色 LoRA。</p>
+          <p>改了一版 ComfyUI workflow，一次從單張來源圖生成多角度變體，同一個 workflow 裡把打標一起跑完，生成跟標註一次到位。跑到效果不錯的變異版本，會再拿去當下一輪的來源圖繼續衍生角度，逐步擴增資料集的視角覆蓋度。</p>
+          <p>ComfyUI 的存檔節點只吃「前綴」，實際編號是它自己管理的一套計數器，圖片和打標文字檔又是各自獨立累加，常常對不上號。寫了一支小腳本，改用「建立時間排序」配對圖片與 txt，再把 txt 統一改名成跟圖片同檔名，訓練工具才抓得到配對。</p>
+          <p>另外留了一支批次修正打標的腳本，處理自動打標偶爾失誤的狀況（例如不小心生成出背景卻沒標到），支援移除／替換／新增／查詢四種模式，預設 dry-run 避免改壞資料。</p>
+          <p>最終練出一個 gf_an94 的 LoRA。拿完全沒出現在訓練資料裡的姿勢和畫風去測試——動態奔跑、寫實市集街拍——角色特徵都還能維持，不是單純記住訓練圖。</p>
+
+          <p class="mini-head">訓練資料範例</p>
+          <div class="gallery-2">
+            <figure class="tile">
+              <img src="assets/lora/dataset/01.png" alt="AN-94 訓練資料範例，近拍持槍">
+              <figcaption>單一 workflow 生成＋自動打標的訓練圖範例</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="assets/lora/dataset/02.png" alt="AN-94 訓練資料範例，正面持槍">
+              <figcaption>多角度變體之一，正面高角度</figcaption>
+            </figure>
+          </div>
+
+          <p class="mini-head">推論成果（訓練集外的姿勢／畫風）</p>
+          <div class="gallery-2">
+            <figure class="tile">
+              <img src="assets/lora/output/01.png" alt="LoRA 推論成果，雨中奔跑動態姿勢">
+              <figcaption>訓練集全是靜態持槍站姿，這張是動態奔跑</figcaption>
+            </figure>
+            <figure class="tile">
+              <img src="assets/lora/output/02.png" alt="LoRA 推論成果，坐在沙發上吃三明治">
+              <figcaption>換成日常場景與全新姿勢，角色特徵仍一致</figcaption>
+            </figure>
           </div>
         </div>
       </article>
