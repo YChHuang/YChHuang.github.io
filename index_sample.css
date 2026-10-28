@@ -537,6 +537,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outlin
   font-size: .93rem;
   line-height: 1.8;
 }
+.case-detail-body h4 {
+  margin: 24px 0 10px;
+  color: var(--ink);
+  font-size: .92rem;
+  font-weight: 600;
+}
+.case-detail-body h4:first-child { margin-top: 0; }
 .case-detail-body p { margin: 0 0 13px; }
 .case-detail-body .text-link { margin-top: 10px; }
 .case-image {
