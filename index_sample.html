@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Yen Chieh Huang is a software engineer working on Unreal Engine tools, visual art, and 3D production workflows.">
+  <title>Yen Chieh Huang — Software Engineer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index_sample.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="index_sample.html" aria-label="Yen Chieh Huang, home">Yen Chieh Huang<span class="brand-dot">.</span></a>
+      <a class="contact-link" href="mailto:a9981321@gmail.com">Get in touch <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="intro-title">
+        <p class="eyebrow">Portfolio / 2026</p>
+        <h1 id="intro-title">Hello, I'm<br><span>Yen Chieh Huang.</span></h1>
+        <p class="role">Software Engineer</p>
+        <p class="intro-copy">I build tools and workflows for Unreal Engine and 3D production. I also make visual work, from drawing to concept art.</p>
+      </section>
+
+      <section class="work" aria-labelledby="work-title">
+        <div class="work-heading">
+          <div>
+            <p class="eyebrow">Selected work</p>
+            <h2 id="work-title">Explore by interest</h2>
+          </div>
+          <p>Choose a section to see what I’ve been working on.</p>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="Portfolio categories">
+          <button class="tab" type="button" role="tab" id="tab-engineering" aria-controls="panel-engineering" aria-selected="true" tabindex="0">Engineering <span>01</span></button>
+          <button class="tab" type="button" role="tab" id="tab-art" aria-controls="panel-art" aria-selected="false" tabindex="-1">Visual Art <span>02</span></button>
+          <button class="tab" type="button" role="tab" id="tab-pipeline" aria-controls="panel-pipeline" aria-selected="false" tabindex="-1">3D Pipeline <span>03</span></button>
+        </div>
+
+        <section class="tab-panel" role="tabpanel" id="panel-engineering" aria-labelledby="tab-engineering" tabindex="0">
+          <div class="feature">
+            <div class="feature-copy">
+              <p class="feature-label">Engineering / Unreal Engine</p>
+              <h3>Tools built around real production problems.</h3>
+              <p>I work on UE tools and the systems around them. One project is a custom asset migration workflow that maps dependencies, checks what can be copied, and moves assets in a reliable order.</p>
+              <a class="text-link" href="index.html#cases">View the UE migration case <span aria-hidden="true">↗</span></a>
+            </div>
+            <div class="feature-media engineering-media" aria-label="Diagram of connected tools and systems">
+              <svg viewBox="0 0 520 380" role="img" aria-label="A central Unreal Engine tool connected to assets, dependencies, checks, and output">
+                <g fill="none" stroke="#a5b9aa" stroke-width="2">
+                  <path d="M125 105h80m110 0h80M260 84v-34M260 196v67M125 275h80m110 0h80"/>
+                  <rect x="40" y="76" width="85" height="58" rx="7"/>
+                  <rect x="395" y="76" width="85" height="58" rx="7"/>
+                  <rect x="40" y="246" width="85" height="58" rx="7"/>
+                  <rect x="395" y="246" width="85" height="58" rx="7"/>
+                  <rect x="205" y="84" width="110" height="112" rx="10" stroke="#334f40" stroke-width="3"/>
+                </g>
+                <g fill="#334f40" font-family="DM Sans, sans-serif" font-size="16" font-weight="700" text-anchor="middle">
+                  <text x="260" y="135">UE TOOL</text>
+                  <text x="260" y="158" font-size="12" font-weight="500">migration</text>
+                </g>
+                <g fill="#667b6d" font-family="DM Sans, sans-serif" font-size="12" font-weight="600" text-anchor="middle">
+                  <text x="82" y="110">ASSETS</text><text x="438" y="110">GRAPH</text>
+                  <text x="82" y="280">CHECKS</text><text x="438" y="280">OUTPUT</text>
+                </g>
+                <circle cx="260" cy="50" r="7" fill="#a4b96a"/>
+                <circle cx="260" cy="263" r="7" fill="#a4b96a"/>
+              </svg>
+            </div>
+          </div>
+          <div class="more-work">
+            <p class="more-label">Also in Engineering</p>
+            <a href="index.html#other-work"><span>Infrastructure, debugging, and internal tools</span><span aria-hidden="true">↗</span></a>
+            <a href="index.html#other-work"><span>AI-assisted full-stack development</span><span aria-hidden="true">↗</span></a>
+          </div>
+        </section>
+
+        <section class="tab-panel" role="tabpanel" id="panel-art" aria-labelledby="tab-art" tabindex="0" hidden>
+          <div class="feature">
+            <div class="feature-copy">
+              <p class="feature-label">Visual Art / Drawing & Concept</p>
+              <h3>Drawing, ideas, and finished images.</h3>
+              <p>My visual work includes observational drawing, environment and mechanical concept art, and character illustration. This is where I explore shape, atmosphere, and composition.</p>
+              <a class="text-link" href="index.html#personal">View the art gallery <span aria-hidden="true">↗</span></a>
+            </div>
+            <figure class="feature-media image-media">
+              <img src="assets/gallery/04.jpg" alt="Environment concept art showing a fortified structure under a cloudy sky" loading="lazy">
+              <figcaption>Environment concept art</figcaption>
+            </figure>
+          </div>
+          <div class="more-work art-thumbnails" aria-label="More artwork previews">
+            <p class="more-label">A few more pieces</p>
+            <div class="thumbnail-row">
+              <img src="assets/gallery/02.jpg" alt="Portrait drawing" loading="lazy">
+              <img src="assets/gallery/05.jpg" alt="Mechanical concept art" loading="lazy">
+              <img src="assets/gallery/06.jpg" alt="Character illustration" loading="lazy">
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" role="tabpanel" id="panel-pipeline" aria-labelledby="tab-pipeline" tabindex="0" hidden>
+          <div class="feature">
+            <div class="feature-copy">
+              <p class="feature-label">3D Pipeline / Production Workflows</p>
+              <h3>Connecting tools from asset to scene.</h3>
+              <p>I’ve used Blender MCP with generated 3D assets to build and render a city scene, and worked with ComfyUI workflows for image and video production. I’m interested in making those steps easier to repeat and adapt.</p>
+              <a class="text-link" href="index.html#cases">View the production cases <span aria-hidden="true">↗</span></a>
+            </div>
+            <figure class="feature-media image-media">
+              <img src="assets/render/01.png" alt="City street scene assembled from 3D assets" loading="lazy">
+              <figcaption>Blender MCP scene test</figcaption>
+            </figure>
+          </div>
+          <div class="more-work">
+            <p class="more-label">Projects in this section</p>
+            <a href="index.html#cases"><span>Blender MCP scene generation</span><span aria-hidden="true">↗</span></a>
+            <a href="index.html#cases"><span>ComfyUI, Minimax H3, and character LoRA</span><span aria-hidden="true">↗</span></a>
+          </div>
+        </section>
+      </section>
+
+      <section class="projects" aria-labelledby="projects-title">
+        <div class="projects-heading">
+          <p class="eyebrow">Independent work</p>
+          <h2 id="projects-title">My Projects</h2>
+        </div>
+
+        <article class="project-card">
+          <div class="project-visual" aria-hidden="true">
+            <div class="pdf-sheet">
+              <div class="pdf-sheet-top"><span>PDF</span><span>01 / 01</span></div>
+              <div class="pdf-line pdf-line-wide"></div>
+              <div class="pdf-line"></div>
+              <div class="pdf-line pdf-line-short"></div>
+              <div class="pdf-sheet-bottom"><span>ROTATION</span><span class="rotation-arrow">↻</span><span>0°</span></div>
+            </div>
+          </div>
+          <div class="project-copy">
+            <p class="project-type">Open source · Python CLI</p>
+            <h3>PretenDF</h3>
+            <p>A small tool for normalizing PDF rotation metadata and page geometry. It fixes “fake landscape” files where the displayed page, its underlying coordinates, and annotations do not agree.</p>
+            <a class="text-link" href="https://github.com/YChHuang/PretenDF" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Yen Chieh Huang · Portfolio draft</span>
+      <a href="mailto:a9981321@gmail.com">a9981321@gmail.com</a>
+    </footer>
+  </div>
+
+  <script>
+    const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+    const panels = Array.from(document.querySelectorAll('[role="tabpanel"]'));
+
+    function activateTab(selectedTab, focus = false) {
+      tabs.forEach((tab) => {
+        const active = tab === selectedTab;
+        tab.setAttribute('aria-selected', String(active));
+        tab.tabIndex = active ? 0 : -1;
+      });
+      panels.forEach((panel) => {
+        panel.hidden = panel.id !== selectedTab.getAttribute('aria-controls');
+      });
+      if (focus) selectedTab.focus();
+    }
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => activateTab(tab));
+      tab.addEventListener('keydown', (event) => {
+        let nextIndex;
+        if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+        else if (event.key === 'Home') nextIndex = 0;
+        else if (event.key === 'End') nextIndex = tabs.length - 1;
+        else return;
+        event.preventDefault();
+        activateTab(tabs[nextIndex], true);
+      });
+    });
+  </script>
+</body>
+</html>
